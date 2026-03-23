@@ -1,0 +1,80 @@
+# =========================
+# Sensitive config
+# =========================
+config.yml
+config.yaml
+*.env
+.env.*
+secrets.yml
+secrets.yaml
+
+# private keys / certs
+*.pem
+*.key
+*.crt
+*.p12
+*.pfx
+
+# ssh keys
+id_rsa
+id_rsa.pub
+*.ppk
+
+# =========================
+# Build output
+# =========================
+bin/
+build/
+dist/
+testpy/
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# Go build cache
+*.test
+*.out
+
+# =========================
+# Logs & temp
+# =========================
+*.log
+logs/
+log/
+tmp/
+temp/
+
+# =========================
+# Dependency (optional)
+# =========================
+vendor/
+
+# =========================
+# IDE / Editor
+# =========================
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+
+# =========================
+# Test & coverage
+# =========================
+coverage.out
+coverage.html
+
+# =========================
+# OS files
+# =========================
+Thumbs.db
+
+# =========================
+# Custom sensitive files
+# =========================
+*.secret
+*.credentials
+*.token
+*.backup

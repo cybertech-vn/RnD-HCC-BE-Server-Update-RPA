@@ -66,26 +66,35 @@ func (a *AESCryptor) GenKey() ([]byte, error) {
 // EncryptData encrypts the plaintext using AES-256-GCM.
 // Returns ciphertext, nonce, tag separately.
 func (a *AESCryptor) EncryptData(plaintext string, nonce []byte) ([]byte, []byte, []byte, error) {
+	return a.EncryptBytes([]byte(plaintext), nonce)
+}
+
+func (a *AESCryptor) EncryptBytes(data []byte, nonce []byte) ([]byte, []byte, []byte, error) {
+
 	if len(a.Key) == 0 {
-		return nil, nil, nil, fmt.Errorf("key not generated. Call GenKey() first")
+		return nil, nil, nil, fmt.Errorf("key not generated")
 	}
+
 	if nonce == nil {
 		nonce = make([]byte, 12)
-		if _, err := rand.Read(nonce); err != nil {
-			return nil, nil, nil, err
-		}
+		rand.Read(nonce)
 	}
+
 	block, err := aes.NewCipher(a.Key)
 	if err != nil {
 		return nil, nil, nil, err
 	}
+
 	gcm, err := cipher.NewGCM(block)
 	if err != nil {
 		return nil, nil, nil, err
 	}
-	ciphertextAndTag := gcm.Seal(nil, nonce, []byte(plaintext), nil)
-	ciphertext := ciphertextAndTag[:len(ciphertextAndTag)-16]
-	tag := ciphertextAndTag[len(ciphertextAndTag)-16:]
+
+	out := gcm.Seal(nil, nonce, data, nil)
+
+	ciphertext := out[:len(out)-16]
+	tag := out[len(out)-16:]
+
 	return ciphertext, nonce, tag, nil
 }
 

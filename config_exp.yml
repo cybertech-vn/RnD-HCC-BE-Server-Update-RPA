@@ -1,0 +1,26 @@
+server:
+  logPath: ./log/server.log
+  serverAddress: ":7878"
+  allowedOrigins:
+    - http://localhost:3000
+  allowHeaders:
+    - Content-Type
+    - Authorization
+
+database:
+  dsn: postgres://user:password@host:port/db/?sslmode=require # Nếu dùng dns thì khog6 cần những dòng bên dưới
+  user: user
+  password: password
+  database: postgres
+  host: localhost
+  port: 5432
+
+cloud_server:
+  url: https://be-kims.aikiosk.net
+
+minio:
+  endpoint: host.docker.internal:9000
+  access_key: access_key
+  secret_key: secret_key
+  bucket: test-bucket
+  use_ssl: true

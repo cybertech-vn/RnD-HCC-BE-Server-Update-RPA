@@ -1,4 +1,7 @@
 import hashlib
+import hmac
+from time import time
+from urllib.parse import urlparse
 
 import requests
 from aes import NewAES
@@ -7,18 +10,50 @@ from fp import get_fingerprint
 baseUrl = "http://localhost:7878/api/v1"
 id=get_fingerprint()
 
+def sign_request(app_id, secret, method, path):
+    timestamp = str(int(time()))
+
+    data = app_id + timestamp + method + path
+
+    signature = hmac.new(
+        secret.encode(),
+        data.encode(),
+        hashlib.sha256
+    ).hexdigest()
+
+    return {
+        "X-App-Id": app_id,
+        "X-Timestamp": timestamp,
+        "X-Signature": signature
+    }
+
+
 def test_upload():
     url = f"{baseUrl}/upload"
-    files = {'file': open('aikL.exe', 'rb')}
-    data = {
-        "app_id": "license_agent",
-        "version": "1.0.1"
-    }
-    
-    response = requests.post(url, files=files, data=data)
-    
+
+    app_id = "license_agent"
+    secret = "c8a9f1e3b7d4c2a6e5f8b0d1a4c9e7f2d6b4a1c0e8f3d5b7a9c2e6f1d4b8a0"
+
+    parsed = urlparse(url)
+    path = parsed.path
+
+    headers = sign_request(app_id, secret, "POST", path)
+
+    with open('test.txt', 'rb') as f:
+        files = {'file': f}
+        data = {
+            "version": "1.0.3"
+        }
+
+        response = requests.post(
+            url,
+            headers=headers,
+            files=files,
+            data=data
+        )
+
+    print(response.status_code)
     print(response.text)
-    print("Upload test passed!")
     
 def get_pass():
     res=requests.post(f"http://localhost:7776/api/v1/psk/{id}",verify=False)
@@ -73,7 +108,7 @@ def test_checkversion():
     
     data = {
         "app_id": "license_agent",
-        "version": "1.0.1"
+        "version": "latest"
     }
     response = requests.post(url, json=data, headers=header)
     
@@ -82,6 +117,6 @@ def test_checkversion():
 
 
 if __name__ == "__main__":
-    # test_upload()
-    test_download()
+    test_upload()
+    # test_download()
     # test_checkversion()

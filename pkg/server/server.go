@@ -122,9 +122,9 @@ func (f *FiberServer) FallBack(function func(c *fiber.Ctx) error) {
 	f.app.Use(function)
 }
 
-func NewServer(name string) *FiberServer {
+func NewServer(name string, config ...fiber.Config) *FiberServer {
 	return &FiberServer{
 		Name: name,
-		app:  fiber.New(fiber.Config{}),
+		app:  fiber.New(config...),
 	}
 }

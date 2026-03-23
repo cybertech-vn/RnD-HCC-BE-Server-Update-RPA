@@ -16,8 +16,19 @@ func FormatJSON(data []byte) string {
 	return prettyJSON.String()
 }
 
+func ParseJSONToMap(data []byte) (map[string]any, error) {
+	var result map[string]any
+
+	err := json.Unmarshal(data, &result)
+	if err != nil {
+		return nil, err
+	}
+
+	return result, nil
+}
+
 // ConvertStructToArgs nhận bất kỳ struct nào và trả về []string chứa giá trị các field
-func ConvertStructToArgs(input interface{}) ([]string, error) {
+func ConvertStructToArgs(input any) ([]string, error) {
 	v := reflect.ValueOf(input)
 
 	// Nếu là con trỏ thì dereference
