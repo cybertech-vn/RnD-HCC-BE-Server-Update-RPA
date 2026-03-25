@@ -1,0 +1,29 @@
+server:
+  logPath: ./log/server.log
+  serverAddress: ":7878"
+  allowedOrigins:
+    - http://localhost:3000
+    - http://localhost:5173
+  allowHeaders:
+    - Content-Type
+    - Authorization
+
+database:
+  # Chạy local (ngoài Docker): PostgreSQL ở localhost
+  dsn: "host=localhost user=postgres password=postgres dbname=postgres port=5432 sslmode=disable"
+  host: localhost
+  port: 5432
+  user: postgres
+  password: postgres
+  database: postgres
+
+cloud_server:
+  url: https://be-kims.aikiosk.net
+
+minio:
+  # Chạy local: MinIO HTTP ở localhost:9000
+  endpoint: localhost:9000
+  access_key: minioadmin
+  secret_key: minioadmin
+  bucket: test-bucket
+  use_ssl: false

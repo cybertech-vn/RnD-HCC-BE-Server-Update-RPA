@@ -1,6 +1,6 @@
 module github.com/SaraNguyen999/setup-server
 
-go 1.25.4
+go 1.26.1
 
 require (
 	github.com/denisbrodbeck/machineid v1.0.1

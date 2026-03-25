@@ -22,8 +22,8 @@ type PGDBM struct {
 func (p *PGDBM) Init(m mydb.BaseConnect) (*gorm.DB, error) {
 
 	// nếu có DSN thì dùng luôn
-	if p.dsn != "" {
-		return p.InitByString(p.dsn)
+	if m.Dsn != "" {
+		return p.InitByString(m.Dsn)
 	}
 
 	p.user = m.User
