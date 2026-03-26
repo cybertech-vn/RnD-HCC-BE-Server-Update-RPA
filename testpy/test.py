@@ -1,14 +1,55 @@
 import hashlib
 import hmac
+import os
 from time import time
-from urllib.parse import urlparse
 
 import requests
 from aes import NewAES
-from fp import get_fingerprint
 
-baseUrl = "http://localhost:7878/api/v1"
-id=get_fingerprint()
+try:
+    from fp import get_fingerprint
+except Exception:
+    get_fingerprint = None
+
+BASE_URL = os.getenv("BASE_URL", "http://localhost:7878")
+API_PREFIX = os.getenv("API_PREFIX", "/api/v1")
+
+
+def load_env_file(path):
+    if not os.path.exists(path):
+        return
+    with open(path, "r", encoding="utf-8") as f:
+        for raw in f:
+            line = raw.strip()
+            if not line or line.startswith("#") or "=" not in line:
+                continue
+            key, value = line.split("=", 1)
+            os.environ[key.strip()] = value.strip()
+
+
+_HERE = os.path.dirname(os.path.abspath(__file__))
+load_env_file(os.path.join(_HERE, ".env"))
+
+BASE_URL = os.getenv("BASE_URL", BASE_URL)
+API_PREFIX = os.getenv("API_PREFIX", API_PREFIX)
+
+
+def get_env(name, default=""):
+    v = os.getenv(name, "").strip()
+    return v if v else default
+
+
+def resolve_client_id():
+    # Prefer explicit env var for local tests.
+    env_id = get_env("CLIENT_ID")
+    if env_id:
+        return env_id
+    if get_fingerprint is None:
+        return "license_agent"
+    return get_fingerprint()
+
+
+id = resolve_client_id()
 
 def sign_request(app_id, secret, method, path):
     timestamp = str(int(time()))
@@ -29,27 +70,28 @@ def sign_request(app_id, secret, method, path):
 
 
 def test_upload():
-    url = f"{baseUrl}/upload"
+    upload_path = f"{API_PREFIX}/upload"
+    url = f"{BASE_URL}{upload_path}"
 
-    app_id = "license_agent"
-    secret = "c8a9f1e3b7d4c2a6e5f8b0d1a4c9e7f2d6b4a1c0e8f3d5b7a9c2e6f1d4b8a0"
+    app_id = get_env("APP_ID", "license_agent")
+    secret = get_env("SECRET")
+    version = get_env("VERSION", "1.0.4")
 
-    parsed = urlparse(url)
-    path = parsed.path
+    headers = sign_request(app_id, secret, "POST", upload_path)
 
-    headers = sign_request(app_id, secret, "POST", path)
-
-    with open('test.txt', 'rb') as f:
+    test_file = os.path.join(os.path.dirname(__file__), "test.txt")
+    with open(test_file, 'rb') as f:
         files = {'file': f}
         data = {
-            "version": "1.0.3"
+            "version": version
         }
 
         response = requests.post(
             url,
             headers=headers,
             files=files,
-            data=data
+            data=data,
+            timeout=60,
         )
 
     print(response.status_code)
@@ -62,7 +104,7 @@ def get_pass():
 
 
 def test_download():
-    url = f"{baseUrl}/download/license_agent/latest"
+    url = f"{BASE_URL}{API_PREFIX}/download/license_agent/latest"
     passkey = get_pass()
 
     headers = {
@@ -98,7 +140,7 @@ def test_download():
     print("Download test passed!")    
     
 def test_checkversion():
-    url = f"{baseUrl}/checkver"
+    url = f"{BASE_URL}{API_PREFIX}/checkver"
     passkey = get_pass()
     header = {
         "X-Client-ID": id,
@@ -117,6 +159,6 @@ def test_checkversion():
 
 
 if __name__ == "__main__":
-    test_upload()
+    # test_upload()
     # test_download()
-    # test_checkversion()
+    test_checkversion()
