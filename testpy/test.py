@@ -160,5 +160,5 @@ def test_checkversion():
 
 if __name__ == "__main__":
     # test_upload()
-    # test_download()
-    test_checkversion()
+    test_download()
+    # test_checkversion()
