@@ -25,9 +25,13 @@ func SetupLogger(options ...LoggerOption) *logrus.Logger {
 // Option để log ra file thay vì console
 func WithFileOutput(filePath string) LoggerOption {
 	return func(logger *logrus.Logger) {
+		if filePath == "" {
+			return
+		}
 		file, err := os.OpenFile(filePath, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
 		if err != nil {
-			logger.Fatal("Failed to log to file, using default stderr")
+			logger.Warn("Failed to log to file, using default stderr: ", err)
+			return
 		}
 		logger.SetOutput(file)
 	}

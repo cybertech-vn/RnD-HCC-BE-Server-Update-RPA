@@ -25,7 +25,6 @@ RUN addgroup -S appgroup && adduser -S appuser -G appgroup
 
 # Cài chứng chỉ SSL và Timezone
 RUN apk add --no-cache ca-certificates tzdata
-ENV TZ=Asia/Ho_Chi_Minh
 
 WORKDIR /app
 
@@ -44,6 +43,6 @@ EXPOSE 7878
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
-    CMD wget --no-verbose --tries=1 --spider http://localhost:7878/heath || exit 1
+    CMD wget --no-verbose --tries=1 --spider http://127.0.0.1:7878/heath || exit 1
 
 CMD ["./setup-server"]
